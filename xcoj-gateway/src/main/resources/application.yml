@@ -1,0 +1,58 @@
+server:
+  address: 0.0.0.0
+  port: 8000
+spring:
+  application:
+    name: xcoj-backend-gateway
+  main:
+    web-application-type: reactive
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+    gateway:
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 30s
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://127.0.0.1:8080"
+              - "http://localhost:8080"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        - id: xcoj-backend-user-service
+          uri: lb://xcoj-backend-user-service
+          predicates:
+            - Path=/api/user/**
+        - id: xcoj-backend-problem-service
+          uri: lb://xcoj-backend-problem-service
+          predicates:
+            - Path=/api/problem/**
+        - id: xcoj-backend-judge-service
+          uri: lb://xcoj-backend-judge-service
+          predicates:
+            - Path=/api/judge/**
+        - id: xcoj-backend-submission-service
+          uri: lb://xcoj-backend-submission-service
+          predicates:
+            - Path=/api/submission/**
+        - id: xcoj-backend-userProblemStatus-service
+          uri: lb://xcoj-backend-userProblemStatus-service
+          predicates:
+            - Path=/api/userProblemStatus/**
+knife4j:
+  gateway:
+    enabled: true
+    strategy: discover
+    discover:
+      enabled: true
+      version: swagger2

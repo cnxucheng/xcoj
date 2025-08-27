@@ -1,0 +1,43 @@
+# 公共配置
+# @author : xucheng
+# @since : 2025-7-8
+
+spring:
+  application:
+    name: xcoj-backend-problem-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/xcoj
+    username: root
+    password: 123456
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+  redis:
+    database: 1
+    host: localhost
+    port: 6379
+    timeout: 5000
+
+server:
+  address: 0.0.0.0
+  port: 8200
+  servlet:
+    context-path: /api/problem
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
+      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+
+knife4j:
+  enable: true
