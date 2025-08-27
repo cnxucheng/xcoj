@@ -1,4 +1,4 @@
-package com.github.cnxucheng.coderunner.model;
+package com.github.cnxucheng.xcojModel.enums;
 
 import lombok.Getter;
 

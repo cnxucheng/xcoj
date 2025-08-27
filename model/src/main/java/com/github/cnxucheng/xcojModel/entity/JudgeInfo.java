@@ -1,5 +1,6 @@
-package com.github.cnxucheng.coderunner.model;
+package com.github.cnxucheng.xcojModel.entity;
 
+import com.github.cnxucheng.xcojModel.enums.ResultMessageEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

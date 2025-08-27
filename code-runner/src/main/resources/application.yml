@@ -1,3 +1,7 @@
+spring:
+  application:
+    name: xcoj-backend-code-runner-service
+
 server:
   port: 8600
   address: 0.0.0.0

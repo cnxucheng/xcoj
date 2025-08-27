@@ -1,13 +1,15 @@
 package com.github.cnxucheng.coderunner.sandbox.dockerSandbox;
 
 import cn.hutool.core.io.FileUtil;
-import com.github.cnxucheng.coderunner.model.ResultMessageEnum;
-import com.github.cnxucheng.coderunner.model.RunCodeDTO;
-import com.github.cnxucheng.coderunner.model.RunCodeVO;
 import com.github.cnxucheng.coderunner.sandbox.SandBox;
+import com.github.cnxucheng.xcojModel.dto.judge.JudgeRequest;
+import com.github.cnxucheng.xcojModel.enums.ResultMessageEnum;
+import com.github.cnxucheng.xcojModel.vo.JudgeResponse;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
+import com.github.dockerjava.api.command.StatsCmd;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
@@ -17,50 +19,47 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.command.*;
-
 public interface DockerSandBox extends SandBox {
     String getFileName();
     List<String> getExecuteCommand();
 
     @Override
-    default RunCodeVO executeCode(RunCodeDTO dto) {
+    default JudgeResponse executeCode(JudgeRequest dto) {
         Long codeId = dto.getCodeId();
         String code = dto.getCode();
 
-        RunCodeVO runCodeVO = new RunCodeVO();
-        runCodeVO.setCodeId(codeId);
-        runCodeVO.setResultCode(0);
+        JudgeResponse JudgeResponse = new JudgeResponse();
+        JudgeResponse.setCodeId(codeId);
+        JudgeResponse.setResultCode(0);
 
         String codeParentPath = saveCodeToFile(code, getFileName());
         saveDataToFile(dto.getInput(), codeParentPath);
 
         // 编译代码
         if (!compile(codeParentPath)) {
-            runCodeVO.setResultCode(-1);
-            runCodeVO.setMessage(ResultMessageEnum.CE.getMessage());
+            JudgeResponse.setResultCode(-1);
+            JudgeResponse.setMessage(ResultMessageEnum.CE.getMessage());
             FileUtil.del(codeParentPath);
-            return runCodeVO;
+            return JudgeResponse;
         }
 
         // 执行代码
         Integer timeLimit = dto.getTimeLimit();
         Integer memoryLimit = dto.getMemoryLimit();
         List<String> input = dto.getInput();
-        RunCodeVO tmpVO = runByDocker(codeParentPath, timeLimit, memoryLimit, input);
+        JudgeResponse tmpVO = runByDocker(codeParentPath, timeLimit, memoryLimit, input);
         if (!tmpVO.getMessage().equals(ResultMessageEnum.OK.getMessage())) {
-            runCodeVO.setResultCode(-1);
+            JudgeResponse.setResultCode(-1);
         }
-        runCodeVO.setOutput(tmpVO.getOutput());
-        runCodeVO.setMessage(tmpVO.getMessage());
-        runCodeVO.setUsedTime(tmpVO.getUsedTime());
-        runCodeVO.setUsedMemory(tmpVO.getUsedMemory());
+        JudgeResponse.setOutput(tmpVO.getOutput());
+        JudgeResponse.setMessage(tmpVO.getMessage());
+        JudgeResponse.setUsedTime(tmpVO.getUsedTime());
+        JudgeResponse.setUsedMemory(tmpVO.getUsedMemory());
         FileUtil.del(codeParentPath);
-        return runCodeVO;
+        return JudgeResponse;
     }
 
-    default RunCodeVO runByDocker(String codeParentPath, Integer timeLimit, Integer memoryLimit, List<String> input) {
+    default JudgeResponse runByDocker(String codeParentPath, Integer timeLimit, Integer memoryLimit, List<String> input) {
         DockerClient dockerClient = DockerClientBuilder.getInstance().build();
         String image = "xcoj-judge:1.0";
 
@@ -69,10 +68,10 @@ public interface DockerSandBox extends SandBox {
         String containerId = createContainerResponse.getId();
         dockerClient.startContainerCmd(containerId).exec();
 
-        RunCodeVO runCodeVO = new RunCodeVO();
-        runCodeVO.setMessage(ResultMessageEnum.OK.getMessage());
-        runCodeVO.setUsedTime(0);
-        runCodeVO.setUsedMemory(0);
+        JudgeResponse JudgeResponse = new JudgeResponse();
+        JudgeResponse.setMessage(ResultMessageEnum.OK.getMessage());
+        JudgeResponse.setUsedTime(0);
+        JudgeResponse.setUsedMemory(0);
 
         // 准备输出结果列表
         List<String> outputList = new ArrayList<>();
@@ -139,30 +138,30 @@ public interface DockerSandBox extends SandBox {
 
                 // 处理执行结果
                 long time = stopWatch.getLastTaskTimeMillis();
-                runCodeVO.setUsedTime(Math.max(runCodeVO.getUsedTime(), time));
-                runCodeVO.setUsedMemory(Math.max(runCodeVO.getUsedMemory(), maxMemory[0] / 1024));
+                JudgeResponse.setUsedTime((int) Math.max(JudgeResponse.getUsedTime(), time));
+                JudgeResponse.setUsedMemory((int) Math.max(JudgeResponse.getUsedMemory(), maxMemory[0] / 1024));
 
                 // 如果有错误输出
                 if (errorBuilder.length() > 0) {
-                    runCodeVO.setResultCode(-1);
-                    runCodeVO.setMessage(ResultMessageEnum.RE.getMessage());
+                    JudgeResponse.setResultCode(-1);
+                    JudgeResponse.setMessage(ResultMessageEnum.RE.getMessage());
                     outputList.add(errorBuilder.toString());
                 } else {
                     outputList.add(outputBuilder.toString());
                 }
 
             } catch (InterruptedException e) {
-                runCodeVO.setResultCode(-1);
-                runCodeVO.setMessage(ResultMessageEnum.RE.getMessage());
+                JudgeResponse.setResultCode(-1);
+                JudgeResponse.setMessage(ResultMessageEnum.RE.getMessage());
                 outputList.add(e.getMessage());
             } finally {
                 statsCmd.close();
             }
 
             if (timeout[0]) {
-                runCodeVO.setResultCode(-1);
-                runCodeVO.setMessage(ResultMessageEnum.TLE.getMessage());
-                return runCodeVO;
+                JudgeResponse.setResultCode(-1);
+                JudgeResponse.setMessage(ResultMessageEnum.TLE.getMessage());
+                return JudgeResponse;
             }
         }
 
@@ -173,8 +172,8 @@ public interface DockerSandBox extends SandBox {
             System.err.println("Failed to remove container: " + e.getMessage());
         }
 
-        runCodeVO.setOutput(outputList);
-        return runCodeVO;
+        JudgeResponse.setOutput(outputList);
+        return JudgeResponse;
     }
 
 

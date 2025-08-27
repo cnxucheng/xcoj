@@ -1,11 +1,11 @@
 package com.github.cnxucheng.coderunner.sandbox.nativeSandBox;
 
 import cn.hutool.core.io.FileUtil;
-import com.github.cnxucheng.coderunner.model.JudgeInfo;
-import com.github.cnxucheng.coderunner.model.ResultMessageEnum;
-import com.github.cnxucheng.coderunner.model.RunCodeDTO;
-import com.github.cnxucheng.coderunner.model.RunCodeVO;
 import com.github.cnxucheng.coderunner.sandbox.SandBox;
+import com.github.cnxucheng.xcojModel.dto.judge.JudgeRequest;
+import com.github.cnxucheng.xcojModel.entity.JudgeInfo;
+import com.github.cnxucheng.xcojModel.enums.ResultMessageEnum;
+import com.github.cnxucheng.xcojModel.vo.JudgeResponse;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -15,38 +15,38 @@ import java.util.concurrent.TimeUnit;
 
 public interface NativeSandBox extends SandBox {
 
-    default RunCodeVO executeCode(RunCodeDTO dto) {
+    default JudgeResponse executeCode(JudgeRequest dto) {
         Long codeId = dto.getCodeId();
         String code = dto.getCode();
         Integer timeLimit = dto.getTimeLimit();
         Integer memoryLimit = dto.getMemoryLimit();
         List<String> input = dto.getInput();
 
-        RunCodeVO runCodeVO = new RunCodeVO();
-        runCodeVO.setCodeId(codeId);
+        JudgeResponse JudgeResponse = new JudgeResponse();
+        JudgeResponse.setCodeId(codeId);
 
         String codeParentPath = saveCodeToFile(code, getFileName());
         saveDataToFile(input, codeParentPath);
         if (!compile(codeParentPath)) {
-            runCodeVO.setResultCode(-1);
-            runCodeVO.setMessage(ResultMessageEnum.CE.getMessage());
-            return runCodeVO;
+            JudgeResponse.setResultCode(-1);
+            JudgeResponse.setMessage(ResultMessageEnum.CE.getMessage());
+            return JudgeResponse;
         }
 
         JudgeInfo judgeInfo = runCode(codeParentPath, timeLimit, memoryLimit, input.size());
-        runCodeVO.setMessage(judgeInfo.getResult().getMessage());
-        runCodeVO.setUsedTime(judgeInfo.getUsedTime());
-        runCodeVO.setUsedMemory(judgeInfo.getUsedMemory());
+        JudgeResponse.setMessage(judgeInfo.getResult().getMessage());
+        JudgeResponse.setUsedTime((int) judgeInfo.getUsedTime());
+        JudgeResponse.setUsedMemory((int) judgeInfo.getUsedMemory());
         if (judgeInfo.getResult() == ResultMessageEnum.OK) {
-            runCodeVO.setResultCode(0);
-            runCodeVO.setOutput(getOutputFile(codeParentPath, input.size()));
+            JudgeResponse.setResultCode(0);
+            JudgeResponse.setOutput(getOutputFile(codeParentPath, input.size()));
         } else {
-            runCodeVO.setResultCode(-1);
+            JudgeResponse.setResultCode(-1);
         }
 
         FileUtil.del(codeParentPath);
 
-        return runCodeVO;
+        return JudgeResponse;
     }
 
     String getFileName();

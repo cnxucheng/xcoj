@@ -18,6 +18,7 @@
         <module>user-service</module>
         <module>xcoj-feign-client</module>
         <module>xcoj-gateway</module>
+        <module>code-runner</module>
     </modules>
 
     <properties>
@@ -83,6 +84,30 @@
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>5.8.26</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cnxucheng</groupId>
+            <artifactId>xcoj-feign-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-api</artifactId>
+            <version>3.3.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-core</artifactId>
+            <version>3.3.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+            <version>3.3.0</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>
