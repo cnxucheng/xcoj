@@ -1,12 +1,12 @@
-package com.github.cnxucheng.userproblemstatusservice.service.impl;
+package com.github.cnxucheng.userservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.cnxucheng.userproblemstatusservice.mapper.UserStatusMapper;
+import com.github.cnxucheng.userservice.mapper.UserStatusMapper;
+import com.github.cnxucheng.userservice.service.UserStatusService;
 import com.github.cnxucheng.xcojModel.entity.UserStatus;
 import com.github.cnxucheng.xcojModel.enums.UserProblemStatusEnum;
-import com.github.cnxucheng.userproblemstatusservice.service.UserStatusService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

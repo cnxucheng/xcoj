@@ -14,7 +14,6 @@
         <module>judge-service</module>
         <module>problem-service</module>
         <module>submission-service</module>
-        <module>user-problem-status-service</module>
         <module>user-service</module>
         <module>xcoj-feign-client</module>
         <module>xcoj-gateway</module>

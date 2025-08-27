@@ -1,4 +1,4 @@
-package com.github.cnxucheng.userproblemstatusservice.mapper;
+package com.github.cnxucheng.userservice.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.cnxucheng.xcojModel.entity.UserStatus;

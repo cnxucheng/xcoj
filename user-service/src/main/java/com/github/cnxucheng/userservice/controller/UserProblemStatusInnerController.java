@@ -1,6 +1,6 @@
-package com.github.cnxucheng.userproblemstatusservice.controller;
+package com.github.cnxucheng.userservice.controller;
 
-import com.github.cnxucheng.userproblemstatusservice.service.UserStatusService;
+import com.github.cnxucheng.userservice.service.UserStatusService;
 import com.github.cnxucheng.xcojModel.entity.UserStatus;
 import com.github.cnxucheng.xcojModel.enums.UserProblemStatusEnum;
 import com.github.cnxucheng.xcojfeignclient.service.UserProblemStatusFeignClient;
@@ -14,7 +14,7 @@ import java.util.List;
 public class UserProblemStatusInnerController implements UserProblemStatusFeignClient {
 
     @Resource
-    UserStatusService userStatusService;
+    private UserStatusService userStatusService;
 
     @GetMapping("/getList")
     @Override
