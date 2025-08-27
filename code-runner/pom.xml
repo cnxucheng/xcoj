@@ -3,10 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.cnxucheng</groupId>
-    <artifactId>coderunner</artifactId>
+    <artifactId>code-runner</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>codeRunner</name>
-    <description>codeRunner</description>
+    <name>code-runner</name>
+    <description>code-runner</description>
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
