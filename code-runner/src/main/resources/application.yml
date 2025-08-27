@@ -1,0 +1,6 @@
+server:
+  port: 8600
+  address: 0.0.0.0
+
+xcojSandbox:
+  boxName: native
