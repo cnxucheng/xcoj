@@ -36,10 +36,10 @@ public interface UserFeignClient {
     @GetMapping("/getByUsername")
     User getByUsername(@RequestParam("username") String username);
 
-    @GetMapping("/status/getList")
+    @GetMapping("/status/list")
     List<Long> getUserStatusList(@RequestParam("userId") Long userId, @RequestParam("status") Integer status);
 
-    @GetMapping("/status/getStatus")
+    @GetMapping("/status/get")
     UserProblemStatusEnum getUserProblemStatus(@RequestParam("userId") Long userId,
                                                @RequestParam("problemId") Long problemId);
 
@@ -48,6 +48,6 @@ public interface UserFeignClient {
                       @RequestParam("problemId") Long problemId,
                       @RequestParam("status") int status);
 
-    @PostMapping("/save")
+    @PostMapping("/status/save")
     void save(@RequestBody UserStatus userStatus);
 }
