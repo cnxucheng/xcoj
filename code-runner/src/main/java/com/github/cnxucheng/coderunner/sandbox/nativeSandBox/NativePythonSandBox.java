@@ -12,6 +12,6 @@ public class NativePythonSandBox implements NativeSandBox {
 
     @Override
     public List<String> getExecuteCommand() {
-        return Arrays.asList("python3", "/app/Main.py");
+        return Arrays.asList("python3", "Main.py");
     }
 }

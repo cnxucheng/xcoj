@@ -27,7 +27,7 @@ public class NativeJavaSandBox implements NativeSandBox {
 
     @Override
     public List<String> getExecuteCommand() {
-        return Arrays.asList("java", "-cp", "/app", "Main");
+        return Arrays.asList("java", "Main");
     }
 
 }
