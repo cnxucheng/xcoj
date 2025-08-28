@@ -9,12 +9,12 @@ import com.github.cnxucheng.common.common.MyPage;
 import com.github.cnxucheng.common.constant.UserLoginState;
 import com.github.cnxucheng.common.exception.BusinessException;
 import com.github.cnxucheng.userservice.mapper.UserMapper;
+import com.github.cnxucheng.userservice.service.UserStatusService;
 import com.github.cnxucheng.xcojModel.dto.user.UserLoginDTO;
 import com.github.cnxucheng.xcojModel.dto.user.UserRegisterDTO;
 import com.github.cnxucheng.xcojModel.entity.User;
 import com.github.cnxucheng.xcojModel.vo.UserVO;
 import com.github.cnxucheng.userservice.service.UserService;
-import com.github.cnxucheng.xcojfeignclient.service.UserProblemStatusFeignClient;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
@@ -36,7 +36,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private final String SALT = "xc_oj_xucheng";
 
     @Resource
-    private UserProblemStatusFeignClient userProblemStatusFeignClient;
+    private UserStatusService userStatusService;
 
     @Override
     public UserVO login(UserLoginDTO userLoginDTO, HttpServletRequest request) {
@@ -110,8 +110,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .userRole(user.getUserRole())
                 .submitNum(user.getSubmitNum())
                 .createTime(user.getCreateTime())
-                .solved(userProblemStatusFeignClient.getUserStatusList(user.getUserId(), 1))
-                .notSolved(userProblemStatusFeignClient.getUserStatusList(user.getUserId(), 0))
+                .solved(userStatusService.getUserStatusList(user.getUserId(), 1))
+                .notSolved(userStatusService.getUserStatusList(user.getUserId(), 0))
                 .build();
     }
 

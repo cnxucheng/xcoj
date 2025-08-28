@@ -10,9 +10,7 @@ import com.github.cnxucheng.xcojModel.enums.UserProblemStatusEnum;
 import com.github.cnxucheng.xcojModel.vo.JudgeResponse;
 import com.github.cnxucheng.xcojfeignclient.service.ProblemFeignClient;
 import com.github.cnxucheng.xcojfeignclient.service.SubmissionFeignClient;
-import com.github.cnxucheng.xcojfeignclient.service.UserProblemStatusFeignClient;
 import com.github.cnxucheng.xcojfeignclient.service.UserFeignClient;
-import io.lettuce.core.ScriptOutputType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -35,10 +33,6 @@ public class JudgeServiceImpl implements JudgeService {
 
     @Resource
     private UserFeignClient userFeignClientService;
-
-    @Resource
-    private UserProblemStatusFeignClient userStatusFeignClientService;
-
 
     @Override
     public void doJudge(Submission submission) {
@@ -75,7 +69,7 @@ public class JudgeServiceImpl implements JudgeService {
                 }
             }
         }
-        UserProblemStatusEnum userProblemStatusEnum = userStatusFeignClientService.getUserProblemStatus(
+        UserProblemStatusEnum userProblemStatusEnum = userFeignClientService.getUserProblemStatus(
                 submission.getProblemId(), submission.getUserId()
         );
         if (userProblemStatusEnum == UserProblemStatusEnum.NO_SUBMIT) {
@@ -83,10 +77,10 @@ public class JudgeServiceImpl implements JudgeService {
                     .userId(submission.getUserId())
                     .problemId(submission.getProblemId())
                     .isAc(response.getResultCode() == 0 ? 1 : 0).build();
-            userStatusFeignClientService.save(userStatus);
+            userFeignClientService.save(userStatus);
         }
         if (userProblemStatusEnum == UserProblemStatusEnum.NOT_AC && response.getResultCode() == 0) {
-            userStatusFeignClientService.updateStatus(
+            userFeignClientService.updateStatus(
                     submission.getUserId(),
                     submission.getProblemId(),
                     1

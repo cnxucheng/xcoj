@@ -45,10 +45,6 @@ spring:
           uri: lb://xcoj-backend-submission-service
           predicates:
             - Path=/api/submission/**
-        - id: xcoj-backend-userProblemStatus-service
-          uri: lb://xcoj-backend-userProblemStatus-service
-          predicates:
-            - Path=/api/userProblemStatus/**
 knife4j:
   gateway:
     enabled: true

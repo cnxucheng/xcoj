@@ -1,10 +1,18 @@
 spring:
   application:
     name: xcoj-backend-code-runner-service
-
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
 server:
-  port: 8600
   address: 0.0.0.0
+  port: 8600
+  servlet:
+    context-path: /api/runner
 
 xcojSandbox:
   boxName: native
+
+knife4j:
+  enable: true
