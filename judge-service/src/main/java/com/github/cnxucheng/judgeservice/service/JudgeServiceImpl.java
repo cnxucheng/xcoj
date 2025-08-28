@@ -29,14 +29,14 @@ public class JudgeServiceImpl implements JudgeService {
     private ProblemFeignClient problemFeignClient;
 
     @Resource
-    private SubmissionFeignClient submissionFeignClientService;
+    private SubmissionFeignClient submissionFeignClient;
 
     @Resource
-    private UserFeignClient userFeignClientService;
+    private UserFeignClient userFeignClient;
 
     @Override
     public void doJudge(Submission submission) {
-        submissionFeignClientService.updateToRunning(submission.getSubmissionId());
+        submissionFeignClient.updateToRunning(submission.getSubmissionId());
         log.info("update ok!");
         JudgeRequest request = getRequest(submission);
         log.info("get request: {}", JSONUtil.toJsonStr(request));
@@ -69,18 +69,18 @@ public class JudgeServiceImpl implements JudgeService {
                 }
             }
         }
-        UserProblemStatusEnum userProblemStatusEnum = userFeignClientService.getUserProblemStatus(
-                submission.getProblemId(), submission.getUserId()
+        UserProblemStatusEnum userProblemStatusEnum = userFeignClient.getUserProblemStatus(
+                submission.getUserId(), submission.getProblemId()
         );
         if (userProblemStatusEnum == UserProblemStatusEnum.NO_SUBMIT) {
             UserStatus userStatus = UserStatus.builder()
                     .userId(submission.getUserId())
                     .problemId(submission.getProblemId())
                     .isAc(response.getResultCode() == 0 ? 1 : 0).build();
-            userFeignClientService.save(userStatus);
+            userFeignClient.save(userStatus);
         }
         if (userProblemStatusEnum == UserProblemStatusEnum.NOT_AC && response.getResultCode() == 0) {
-            userFeignClientService.updateStatus(
+            userFeignClient.updateStatus(
                     submission.getUserId(),
                     submission.getProblemId(),
                     1
@@ -88,12 +88,12 @@ public class JudgeServiceImpl implements JudgeService {
         }
         if (userProblemStatusEnum != UserProblemStatusEnum.AC) {
             problemFeignClient.updateStatistics(submission.getProblemId(), response.getResultCode() == 0 ? 1 : 0);
-            userFeignClientService.updateStatistics(submission.getUserId(), response.getResultCode() == 0 ? 1 : 0);
+            userFeignClient.updateStatistics(submission.getUserId(), response.getResultCode() == 0 ? 1 : 0);
         }
         if (response.getResultCode() == 0) {
             response.setMessage("Accepted");
         }
-        submissionFeignClientService.updateSubmissionJudgeInfo(response);
+        submissionFeignClient.updateSubmissionJudgeInfo(response);
     }
 
     private JudgeRequest getRequest(Submission submission) {
