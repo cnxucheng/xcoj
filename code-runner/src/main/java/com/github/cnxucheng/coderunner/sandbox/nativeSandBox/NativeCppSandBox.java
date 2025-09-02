@@ -26,6 +26,6 @@ public class NativeCppSandBox implements NativeSandBox {
 
     @Override
     public List<String> getExecuteCommand() {
-        return Collections.singletonList("./Main");
+        return Collections.singletonList("Main.exe");
     }
 }

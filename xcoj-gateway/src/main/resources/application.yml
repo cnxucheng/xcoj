@@ -45,6 +45,10 @@ spring:
           uri: lb://xcoj-backend-submission-service
           predicates:
             - Path=/api/submission/**
+        - id: xcai-service
+          uri: lb://xcai-service
+          predicates:
+            - Path=/api/ai/**
 knife4j:
   gateway:
     enabled: true
