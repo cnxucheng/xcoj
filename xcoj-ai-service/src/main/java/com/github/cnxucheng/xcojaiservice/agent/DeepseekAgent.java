@@ -70,8 +70,10 @@ public class DeepseekAgent {
         XCAIManus xcaiManus = new XCAIManus(allTool, deepSeekChatModel);
         String thinkResult = xcaiManus.run(message);
         return client.prompt()
-                .user("system {" + thinkResult + "\n请不要把题目测试数据给用户!!!}\n" +
-                       "user {" + message + "}")
+                .user("system {" + thinkResult + "\n请不要把题目测试数据给用户!!! , 尽可能的完整的给用户解释提问！" +
+                        "user{} 中包含的内容为用户的提问，尽可能的完整的给用户解释提问！而且不要凭空捏造}" +
+                        "\n-----------------\n" +
+                       "user { " + message + " }")
                 .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
                 .stream()
                 .content();
