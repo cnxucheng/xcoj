@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>xcoj-backend-code-runner-service</artifactId>
+    <artifactId>code-runner</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>xcoj-backend-code-runner-service</name>
-    <description>xcoj-backend-code-runner-service</description>
+    <name>code-runner</name>
+    <description>code-runner</description>
 
     <parent>
         <groupId>com.github.cnxucheng</groupId>
@@ -46,12 +46,6 @@
             <artifactId>docker-java</artifactId>
             <version>3.3.0</version>
         </dependency>
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>5.8.26</version>
-        </dependency>
-
         <dependency>
             <groupId>com.github.cnxucheng</groupId>
             <artifactId>model</artifactId>

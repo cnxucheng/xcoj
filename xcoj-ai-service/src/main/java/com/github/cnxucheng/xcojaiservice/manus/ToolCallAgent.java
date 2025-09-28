@@ -3,6 +3,7 @@ package com.github.cnxucheng.xcojaiservice.manus;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.cnxucheng.xcojaiservice.manus.model.AgentState;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -21,6 +22,7 @@ import org.springframework.ai.tool.ToolCallback;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 public class ToolCallAgent extends ReActAgent {
 
     private final ToolCallback[] availableTools;
@@ -116,19 +118,4 @@ public class ToolCallAgent extends ReActAgent {
         return results;
     }
 
-    public ToolCallback[] getAvailableTools() {
-        return availableTools;
-    }
-
-    public ChatResponse getToolCallChatResponse() {
-        return toolCallChatResponse;
-    }
-
-    public ToolCallingManager getToolCallingManager() {
-        return toolCallingManager;
-    }
-
-    public ChatOptions getChatOptions() {
-        return chatOptions;
-    }
 }

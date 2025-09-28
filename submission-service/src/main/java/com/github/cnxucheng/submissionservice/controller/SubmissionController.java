@@ -40,7 +40,7 @@ public class SubmissionController {
     public Result<?> submit(@RequestBody SubmissionSubmitDTO submitDTO, HttpServletRequest request) {
         Submission submission = new Submission();
         BeanUtil.copyProperties(submitDTO, submission);
-        User user  = userFeignClient.getLoginUser(request);
+        User user  = userFeignClient.getLoginUser(request.getHeader("token"));
         submission.setUserId(user.getUserId());
         submissionService.save(submission);
         rabbitMQProducer.sendMessage("submission_exchange", "my_routingKey", String.valueOf(submission.getSubmissionId()));
@@ -64,7 +64,7 @@ public class SubmissionController {
     @GetMapping("/detail")
     public Result<Submission> getDetail(@RequestParam("id") Long id, HttpServletRequest request) {
         Submission submission = submissionService.getById(id);
-        User user = userFeignClient.getLoginUser(request);
+        User user = userFeignClient.getLoginUser(request.getHeader("token"));
         if (!Objects.equals(user.getUserId(), submission.getUserId()) &&
                 UserRoleEnum.getWeight(user.getUserRole()) < UserRoleEnum.getWeight(UserRoleEnum.ADMIN.getValue())) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);

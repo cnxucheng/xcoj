@@ -37,7 +37,7 @@ public class ProblemController {
     @GetMapping("/")
     public Result<ProblemVO> findById(@RequestParam(value = "id") Integer id, HttpServletRequest request) {
         Problem problem  = problemService.getById(id);
-        User user = userFeignClient.getLoginUser(request);
+        User user = userFeignClient.getLoginUser(request.getHeader("token"));
         UserRoleEnum userRoleEnum = (user != null ? UserRoleEnum.getEnum(user.getUserRole()) : UserRoleEnum.BAN);
         // 如果是隐藏的题目，要求具有管理员权限
         if (problem.getIsHidden() == 1) {
@@ -57,7 +57,7 @@ public class ProblemController {
     @PostMapping("/list")
     public Result<MyPage<ProblemSampleVO>> find(@RequestBody ProblemQueryDTO queryDTO, HttpServletRequest request) {
         QueryWrapper<Problem> queryWrapper;
-        User user = userFeignClient.getLoginUser(request);
+        User user = userFeignClient.getLoginUser(request.getHeader("token"));
         Page<Problem> qpage = new Page<>(queryDTO.getCurrent(), queryDTO.getPageSize());
         if (user != null && Objects.requireNonNull(UserRoleEnum.getEnum(user.getUserRole())).getWeight() >= UserRoleEnum.ADMIN.getWeight()) {
             queryWrapper = problemService.getQueryWrapper(queryDTO, 1);

@@ -9,6 +9,7 @@ import com.github.cnxucheng.xcojModel.entity.User;
 import com.github.cnxucheng.xcojModel.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 
 /**
@@ -18,11 +19,13 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface UserService extends IService<User> {
 
-    UserVO login(UserLoginDTO userLoginDTO, HttpServletRequest request);
+    String login(UserLoginDTO userLoginDTO, HttpServletRequest request);
 
     Long register(UserRegisterDTO userRegisterDTO);
 
     User getLoginUser(HttpServletRequest request);
+
+    User getLoginUser(String token);
 
     void updateStatistics(Long userId, Integer isAc);
 
@@ -31,4 +34,8 @@ public interface UserService extends IService<User> {
     MyPage<UserVO> toVOPage(Page<User> userPage);
 
     void logout(HttpServletRequest request);
+
+    void signIn(long userId);
+
+    List<Integer> getSignInData(int year, long userId);
 }

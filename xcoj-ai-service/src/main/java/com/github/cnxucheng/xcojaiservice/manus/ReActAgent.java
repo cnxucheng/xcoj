@@ -1,5 +1,6 @@
 package com.github.cnxucheng.xcojaiservice.manus;
 
+import com.github.cnxucheng.xcojaiservice.manus.model.AgentState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -17,6 +18,7 @@ public abstract class ReActAgent extends BaseAgent {
         try {
             boolean shouldAct = think();
             if (!shouldAct) {
+                state = AgentState.FINISHED;
                 return "思考完成: 无需下一步";
             }
             return act();

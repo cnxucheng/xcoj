@@ -33,8 +33,8 @@ public class ProblemAdminController {
     public Result<?> add(@RequestBody ProblemAddDTO problemAddDTO, HttpServletRequest request) {
         Problem problem = new Problem();
         BeanUtil.copyProperties(problemAddDTO, problem);
-        Long userId = userFeignClient.getLoginUser(request).getUserId();
-        problem.setUserId(userId);
+//        Long userId = userFeignClient.getLoginUser(request).getUserId();
+        problem.setUserId(1L);
         problem.setTags(JSONUtil.toJsonStr(problemAddDTO.getTags()));
         String testCaseString = JSONUtil.toJsonStr(problemAddDTO.getJudgeCase());
         problem.setJudgeCase(testCaseString);

@@ -1,6 +1,7 @@
 package com.github.cnxucheng.xcojgateway.filter;
 
 import cn.hutool.core.text.AntPathMatcher;
+import cn.hutool.jwt.JWTUtil;
 import com.github.cnxucheng.xcojModel.entity.User;
 import com.github.cnxucheng.xcojfeignclient.service.UserFeignClient;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -41,8 +42,16 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
             return response.writeWith(Mono.just(dataBuffer));
         }
         if (antPathMatcher.match("/**/admin/**", path)) {
-            User user = userFeignClient.getLoginUser((HttpServletRequest) serverHttpRequest);
-            if (!Objects.equals(user.getUserRole(), "admin") && !Objects.equals(user.getUserRole(), "root")) {
+            String token = Objects.requireNonNull(serverHttpRequest.getHeaders().get("token")).get(0);
+            if (token == null) {
+                ServerHttpResponse response = exchange.getResponse();
+                response.setStatusCode(HttpStatus.FORBIDDEN);
+                DataBufferFactory dataBufferFactory = response.bufferFactory();
+                DataBuffer dataBuffer = dataBufferFactory.wrap("无权限".getBytes(StandardCharsets.UTF_8));
+                return response.writeWith(Mono.just(dataBuffer));
+            }
+            String userRole = (String) JWTUtil.parseToken(token).getPayload("userRole");
+            if (!Objects.equals(userRole, "admin") && !Objects.equals(userRole, "root")) {
                 ServerHttpResponse response = exchange.getResponse();
                 response.setStatusCode(HttpStatus.FORBIDDEN);
                 DataBufferFactory dataBufferFactory = response.bufferFactory();

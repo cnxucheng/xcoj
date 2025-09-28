@@ -10,9 +10,6 @@ spring:
     url: jdbc:mysql://localhost:3306/xcoj
     username: root
     password: 123456
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
   cloud:
     nacos:
       discovery:
@@ -21,7 +18,7 @@ spring:
     store-type: redis
   redis:
     database: 1
-    host: localhost
+    host: 127.0.0.1
     port: 6379
     timeout: 5000
 

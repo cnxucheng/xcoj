@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.List;
 
 import static com.github.cnxucheng.common.constant.UserLoginState.USER_LOGIN_STATE;
@@ -18,14 +17,8 @@ import static com.github.cnxucheng.common.constant.UserLoginState.USER_LOGIN_STA
 @FeignClient(name = "xcoj-backend-user-service", path = "/api/user/inner")
 public interface UserFeignClient {
 
-    default User getLoginUser(HttpServletRequest request) {
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getUserId() == null) {
-            return null;
-        }
-        return getById(currentUser.getUserId());
-    }
+    @GetMapping("/getLoginUser")
+    User getLoginUser(@RequestParam("token") String token);
 
     @PostMapping("/update/statistics")
     void updateStatistics(@RequestParam("userId") Long userId, @RequestParam("isAc") Integer isAc);

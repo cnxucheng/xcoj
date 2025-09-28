@@ -7,6 +7,16 @@ spring:
   main:
     web-application-type: reactive
   cloud:
+    sentinel:
+      enabled: true
+      eager: true
+      transport:
+        dashboard: localhost:8131
+        port: 8001
+      scg:
+        enabled: true
+        order: -100
+
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848

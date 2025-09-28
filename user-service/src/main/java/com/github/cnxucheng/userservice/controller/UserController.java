@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/")
@@ -31,7 +34,7 @@ public class UserController {
      * 用户登录
      */
     @PostMapping("/login")
-    public Result<UserVO> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletRequest request) {
+    public Result<Map<String, Object>> login(@RequestBody UserLoginDTO userLoginDTO, HttpServletRequest request) {
         if (userLoginDTO == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -46,7 +49,10 @@ public class UserController {
         if (password.length() < 6 || password.length() > 20) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        return Result.success(userService.login(userLoginDTO, request));
+        Map<String, Object> result = new HashMap<>();
+        result.put("head", "token");
+        result.put("token", userService.login(userLoginDTO, request));
+        return Result.success(result);
     }
 
     @PostMapping("/register")
@@ -128,5 +134,17 @@ public class UserController {
     public Result<?> logout(HttpServletRequest request) {
         userService.logout(request);
         return Result.success("ok");
+    }
+
+    @GetMapping("/sign_in")
+    public Result<?> signIn(HttpServletRequest request) {
+        User user = userService.getLoginUser(request);
+        userService.signIn(user.getUserId());
+        return Result.success("ok");
+    }
+
+    @GetMapping("/sign_in_data")
+    public Result<List<Integer>> signInData(int year, int userId) {
+        return Result.success(userService.getSignInData(year, userId));
     }
 }

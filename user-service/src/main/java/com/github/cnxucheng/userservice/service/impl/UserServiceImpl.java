@@ -1,5 +1,9 @@
 package com.github.cnxucheng.userservice.service.impl;
 
+import cn.hutool.core.convert.Convert;
+import cn.hutool.jwt.JWT;
+import cn.hutool.jwt.JWTPayload;
+import cn.hutool.jwt.JWTUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,6 +12,7 @@ import com.github.cnxucheng.common.common.ErrorCode;
 import com.github.cnxucheng.common.common.MyPage;
 import com.github.cnxucheng.common.constant.UserLoginState;
 import com.github.cnxucheng.common.exception.BusinessException;
+import com.github.cnxucheng.userservice.constant.RedisConstant;
 import com.github.cnxucheng.userservice.mapper.UserMapper;
 import com.github.cnxucheng.userservice.service.UserStatusService;
 import com.github.cnxucheng.xcojModel.dto.user.UserLoginDTO;
@@ -15,13 +20,19 @@ import com.github.cnxucheng.xcojModel.dto.user.UserRegisterDTO;
 import com.github.cnxucheng.xcojModel.entity.User;
 import com.github.cnxucheng.xcojModel.vo.UserVO;
 import com.github.cnxucheng.userservice.service.UserService;
+import org.redisson.api.RBitSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -33,13 +44,18 @@ import java.util.stream.Collectors;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
 
+    @Resource
+    private RedissonClient redissonClient;
+
     private final String SALT = "xc_oj_xucheng";
+
+    private final String JWT_KEY = "xcoj_jwt_key";
 
     @Resource
     private UserStatusService userStatusService;
 
     @Override
-    public UserVO login(UserLoginDTO userLoginDTO, HttpServletRequest request) {
+    public String login(UserLoginDTO userLoginDTO, HttpServletRequest request) {
         String username = userLoginDTO.getUsername();
         String password = userLoginDTO.getPassword();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -50,8 +66,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号不存在或密码错误");
         }
-        request.getSession().setAttribute(UserLoginState.USER_LOGIN_STATE, user);
-        return toVO(user);
+        // request.getSession().setAttribute(UserLoginState.USER_LOGIN_STATE, user);
+        // 使用jwt实现登录
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("username", username);
+        payload.put("userId", user.getUserId());
+        payload.put("userRole", user.getUserRole());
+        return JWTUtil.createToken(payload, JWT_KEY.getBytes());
     }
 
     @Override
@@ -79,12 +100,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public User getLoginUser(HttpServletRequest request) {
-        Object userObj = request.getSession().getAttribute(UserLoginState.USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getUserId() == null) {
-            return null;
+        return getLoginUser(request.getHeader("token"));
+    }
+
+    @Override
+    public User getLoginUser(String token) {
+        JWT jwt = JWTUtil.parseToken(token);
+        JWTPayload payload = jwt.getPayload();
+        Long userId = Convert.toLong(payload.getClaim("userId"));
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户未登录");
         }
-        long userId = currentUser.getUserId();
+        User currentUser = this.getById(userId);
+        if (currentUser.getUserId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户未登录");
+        }
         currentUser = this.getById(userId);
         return currentUser;
     }
@@ -134,6 +164,42 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public void logout(HttpServletRequest request) {
         request.getSession().removeAttribute(UserLoginState.USER_LOGIN_STATE);
+    }
+
+    @Override
+    public void signIn(long userId) {
+        LocalDate date = LocalDate.now();
+        int year = date.getYear();
+        int offset = date.getDayOfYear();
+        String key = RedisConstant.getUserSignKey(year, userId);
+        RBitSet bitSet = redissonClient.getBitSet(key);
+        if (!bitSet.get(offset)) {
+            bitSet.set(offset, true);
+        }
+    }
+
+    @Override
+    public List<Integer> getSignInData(int year, long userId) {
+        int allDays = getDayByYear(year);
+        String key = RedisConstant.getUserSignKey(year, userId);
+        RBitSet bitSet = redissonClient.getBitSet(key);
+        List<Integer> result = new ArrayList<>();
+        for (int i = 1; i <= allDays; i ++ ) {
+            if (bitSet.get(i)) {
+                result.add(i);
+            }
+        }
+        return result;
+    }
+
+    private int getDayByYear(int year) {
+        if (year % 400 == 0) {
+            return 366;
+        }
+        if (year % 4 == 0 && year % 100 != 0) {
+            return 366;
+        }
+        return 365;
     }
 }
 

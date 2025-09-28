@@ -22,6 +22,12 @@ public class UserInnerController implements UserFeignClient {
     @Resource
     private UserStatusService userStatusService;
 
+    @GetMapping("/getLoginUser")
+    @Override
+    public User getLoginUser(@RequestParam String token) {
+        return userService.getLoginUser(token);
+    }
+
     @PostMapping("/update/statistics")
     @Override
     public void updateStatistics(@RequestParam Long userId, @RequestParam Integer isAc) {
