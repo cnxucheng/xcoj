@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-
-import static com.github.cnxucheng.common.constant.UserLoginState.USER_LOGIN_STATE;
 
 @FeignClient(name = "xcoj-backend-user-service", path = "/api/user/inner")
 public interface UserFeignClient {

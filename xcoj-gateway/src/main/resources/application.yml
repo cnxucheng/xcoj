@@ -36,7 +36,10 @@ spring:
               - PUT
               - DELETE
               - OPTIONS
-            allowedHeaders: "*"
+            allowedHeaders:
+              - Token
+              - Content-type
+              - Authorization
             allowCredentials: true
       routes:
         - id: xcoj-backend-user-service
@@ -55,10 +58,11 @@ spring:
           uri: lb://xcoj-backend-submission-service
           predicates:
             - Path=/api/submission/**
-        - id: xcai-service
-          uri: lb://xcai-service
+        - id: xcoj-backend-code-runner-service
+          uri: lb://xcoj-backend-code-runner-service
           predicates:
-            - Path=/api/ai/**
+            - Path=/api/runner/**
+
 knife4j:
   gateway:
     enabled: true

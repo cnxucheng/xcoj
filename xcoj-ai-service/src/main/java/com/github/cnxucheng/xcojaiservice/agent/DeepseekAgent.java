@@ -1,5 +1,7 @@
 package com.github.cnxucheng.xcojaiservice.agent;
 
+import com.github.cnxucheng.xcojModel.dto.problem.ProblemAddDTO;
+import com.github.cnxucheng.xcojModel.entity.Problem;
 import com.github.cnxucheng.xcojaiservice.manus.XCAIManus;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -11,6 +13,7 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import com.github.cnxucheng.xcojaiservice.adviser.XCAILoggerAdvisor;
@@ -48,8 +51,7 @@ public class DeepseekAgent {
                 .defaultSystem(DEFAULT_SYSTEM_PROMPT)
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
-                        new XCAILoggerAdvisor(),
-                        new QuestionAnswerAdvisor(xcaiVectorStore)
+                        new XCAILoggerAdvisor()
                 )
                 .build();
     }
@@ -77,5 +79,18 @@ public class DeepseekAgent {
                 .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
                 .stream()
                 .content();
+    }
+
+    public ProblemAddDTO makeProblem(String message, String chatId) {
+        String DEFAULT_SYSTEM_PROMPT = "你是XCAI系统的一个善于出题的人，会根据用户的提示，给出一个完美的题目，" +
+                "注意：timeLimit字段单位为ms，memoryLimit字段单位为KB," +
+                "题目要求用户代码时间复杂度、空间复杂度都在可控制的范围内，一份良好的题目内容，包含题目描述、输入描述、" +
+                "输出描述、样例输入、样例输出、备注（数据范围等），文本内容以markdown的形式给出。" +
+                "注意规范！！！！！";
+        return client.prompt(DEFAULT_SYSTEM_PROMPT)
+                .user(message)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, chatId))
+                .call()
+                .entity(new ParameterizedTypeReference<ProblemAddDTO>() {});
     }
 }

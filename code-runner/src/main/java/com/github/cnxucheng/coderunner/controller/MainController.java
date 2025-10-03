@@ -3,19 +3,27 @@ package com.github.cnxucheng.coderunner.controller;
 import com.github.cnxucheng.coderunner.sandbox.SandboxFactory;
 import com.github.cnxucheng.coderunner.sandbox.SandBox;
 import com.github.cnxucheng.xcojModel.dto.judge.JudgeRequest;
+import com.github.cnxucheng.xcojModel.entity.User;
 import com.github.cnxucheng.xcojModel.vo.JudgeResponse;
 import com.github.cnxucheng.xcojfeignclient.service.CodeRunnerClient;
+import com.github.cnxucheng.xcojfeignclient.service.UserFeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/inner")
-public class MainController implements CodeRunnerClient {
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
-    @PostMapping("/run")
-    public JudgeResponse runCode(@RequestBody JudgeRequest runCodeDTO) {
+@RestController
+@RequestMapping("/")
+public class MainController {
+
+    @Resource
+    private UserFeignClient userFeignClient;
+
+    @PostMapping("/inner/run")
+    public JudgeResponse runCodeInner(@RequestBody JudgeRequest runCodeDTO) {
         if (runCodeDTO == null) {
             throw new RuntimeException("请求参数为空");
         }
@@ -37,5 +45,27 @@ public class MainController implements CodeRunnerClient {
         }
 
         return sandBox.executeCode(runCodeDTO);
+    }
+
+    @PostMapping("/run")
+    public JudgeResponse runCode(@RequestBody JudgeRequest runCodeDTO, HttpServletRequest request) {
+        String token = request.getHeader("token");
+        if (token == null) {
+            return JudgeResponse.builder()
+                    .codeId(runCodeDTO.getCodeId())
+                    .resultCode(-1)
+                    .message("用户未登录")
+                    .build();
+        }
+        User user = userFeignClient.getLoginUser(request.getHeader("token"));
+        System.out.println(user);
+        if (user == null || user.getUserId() == null) {
+            return JudgeResponse.builder()
+                    .codeId(runCodeDTO.getCodeId())
+                    .resultCode(-1)
+                    .message("用户信息错误")
+                    .build();
+        }
+        return runCodeInner(runCodeDTO);
     }
 }
